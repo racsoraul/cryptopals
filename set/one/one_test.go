@@ -1,4 +1,4 @@
-package setOne
+package one
 
 import "testing"
 
