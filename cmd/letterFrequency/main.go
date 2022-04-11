@@ -11,10 +11,10 @@ import (
 	"sort"
 )
 
-type letterFrequency map[byte]int
-type letterDistribution struct {
+type lettersFrequency map[byte]int
+type lettersDistribution struct {
 	letter byte
-	value  float32
+	value  float64
 }
 
 func main() {
@@ -67,7 +67,8 @@ func main() {
 
 	reader := bufio.NewReader(textFile)
 	buffer := make([]byte, 64<<10)
-	frequencyCounter := make(letterFrequency)
+	frequencyCounter := make(lettersFrequency)
+	var totalCount int
 	for {
 		n, errReader := reader.Read(buffer)
 		if errReader == io.EOF {
@@ -78,25 +79,25 @@ func main() {
 		}
 
 		for _, letter := range letterSet {
-			count := frequencyCounter[letter]
-			frequencyCounter[letter] = count + bytes.Count(buffer[:n], []byte{letter})
+			prevCount := frequencyCounter[letter]
+			frequencyCount := bytes.Count(buffer[:n], []byte{letter})
+			totalCount += frequencyCount
+			frequencyCounter[letter] = prevCount + frequencyCount
 		}
 	}
-	distribution := make([]letterDistribution, 0)
-	var totalCount int
-	for _, count := range frequencyCounter {
-		totalCount += count
-	}
+
+	distribution := make([]lettersDistribution, 0)
 	for key, count := range frequencyCounter {
-		distribution = append(distribution, letterDistribution{
+		distribution = append(distribution, lettersDistribution{
 			letter: key,
-			value:  float32(count) / float32(totalCount),
+			value:  float64(count) / float64(totalCount),
 		})
 	}
+
 	sort.SliceStable(distribution, func(i, j int) bool {
 		return distribution[i].letter < distribution[j].letter
 	})
 	for _, frequency := range distribution {
-		fmt.Printf("%c: %.8f\n", frequency.letter, frequency.value)
+		fmt.Printf("'%c': %.8f,\n", frequency.letter, frequency.value)
 	}
 }
