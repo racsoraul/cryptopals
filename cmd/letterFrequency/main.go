@@ -20,12 +20,12 @@ type lettersDistribution struct {
 func main() {
 	var (
 		fileName        string
-		letters         uint
+		set             uint
 		customLetterSet string
 	)
 
 	flag.StringVar(&fileName, "file", "", "Path to file to process.")
-	flag.UintVar(&letters, "letters", 0, "Set of letters to find frequency. Values: 0: a-z, 1: A-Z, 2: a-zA-Z.")
+	flag.UintVar(&set, "set", 0, "Set of letters to find frequency. Values: 0: a-z, 1: A-Z, 2: a-zA-Z.")
 	flag.StringVar(&customLetterSet, "custom", "", "Custom set of letters to find frequency.")
 
 	flag.Parse()
@@ -40,7 +40,7 @@ func main() {
 	if len(customLetterSet) > 0 {
 		letterSet = []byte(customLetterSet)
 	} else {
-		switch letters {
+		switch set {
 		case 0:
 			letterSet = []byte("abcdefghijklmnopqrstuvwxyz")
 		case 1:
@@ -48,15 +48,13 @@ func main() {
 		case 2:
 			letterSet = []byte("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 		default:
-			log.Fatalf("Value %d is invalid for argument 'letters'.\n", letters)
+			log.Fatalf("Value %d is invalid for argument 'set'.\n", set)
 		}
 	}
 
 	fmt.Printf(
-		"Running using values:\n -fileName: %s\n -letters: %d -> %s\n -custom: %s\n",
-		fileName,
-		letters, letterSet,
-		customLetterSet,
+		"Running using values:\n -fileName: %s\n -set: %d -> %s\n -custom: %s\n",
+		fileName, set, letterSet, customLetterSet,
 	)
 
 	textFile, err := os.Open(fileName)
@@ -98,6 +96,6 @@ func main() {
 		return distribution[i].letter < distribution[j].letter
 	})
 	for _, frequency := range distribution {
-		fmt.Printf("'%c': %.8f,\n", frequency.letter, frequency.value)
+		fmt.Printf("'%c': %g,\n", frequency.letter, frequency.value)
 	}
 }
