@@ -25,3 +25,15 @@ func TestFixedXOR(t *testing.T) {
 		t.Fatalf("\nWants: %s\nActual: %s\n", wants, actual)
 	}
 }
+
+// Challenge 3
+func TestDecipherSingleByteXOR(t *testing.T) {
+	msg, err := decipherSingleByteXOR("1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736")
+	if err != nil {
+		t.Fatal(err)
+	}
+	wants := "Cooking MC's like a pound of bacon"
+	if msg != wants {
+		t.Fatalf("\nWants: %s\nActual: %s\n", wants, msg)
+	}
+}
