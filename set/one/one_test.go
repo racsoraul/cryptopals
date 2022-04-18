@@ -1,6 +1,9 @@
 package one
 
-import "testing"
+import (
+	"os"
+	"testing"
+)
 
 // Challenge 1
 func TestHexToBase64(t *testing.T) {
@@ -33,7 +36,24 @@ func TestDecipherSingleByteXOR(t *testing.T) {
 		t.Fatal(err)
 	}
 	wants := "Cooking MC's like a pound of bacon"
-	if msg != wants {
-		t.Fatalf("\nWants: %s\nActual: %s\n", wants, msg)
+	if msg.plainText != wants {
+		t.Fatalf("\nWants: %s\nActual: %s\n", wants, msg.plainText)
+	}
+}
+
+// Challenge 4
+func TestDecipherSingleByteXORFromFile(t *testing.T) {
+	file, err := os.Open("challenge4_data.txt")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer file.Close()
+	msg, err := decipherSingleByteXORFromFile(file)
+	if err != nil {
+		t.Fatal(err)
+	}
+	wants := "Now that the party is jumping"
+	if msg.plainText != wants {
+		t.Fatalf("\nWants: %s\nActual: %s\n", wants, msg.plainText)
 	}
 }

@@ -1,11 +1,14 @@
 package one
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
 	"math"
+	"os"
+	"strings"
 )
 
 // decodeHex Decodes Hex string.
@@ -86,7 +89,7 @@ var EnglishLettersDistribution = map[byte]float64{
 	'z': 0.0006293617859758195,
 }
 
-// scoreText Gives a score to src to help determine if it's English text.
+// scoreText Gives a score to text to help determine if it's English text.
 // The closest to zero the better.
 func scoreText(text []byte) float64 {
 	var score float64
@@ -118,16 +121,16 @@ func scoreText(text []byte) float64 {
 }
 
 type guess struct {
-	value string
-	score float64
-	key   string
+	plainText string
+	score     float64
+	key       string
 }
 
 // decipherSingleByteXOR Deciphers the message.
-func decipherSingleByteXOR(src string) (string, error) {
+func decipherSingleByteXOR(src string) (guess, error) {
 	cipherText, err := decodeHex(src)
 	if err != nil {
-		return "", err
+		return guess{}, err
 	}
 
 	var candidateKeys [256]byte
@@ -144,9 +147,33 @@ func decipherSingleByteXOR(src string) (string, error) {
 		score := scoreText(candidatePlainText)
 		if msgGuess.score > score {
 			msgGuess.score = score
-			msgGuess.value = string(candidatePlainText)
+			msgGuess.plainText = string(candidatePlainText)
 			msgGuess.key = string(key)
 		}
 	}
-	return msgGuess.value, nil
+	return msgGuess, nil
+}
+
+// decipherSingleByteXORFromFile Decipher line containing the message from reader.
+func decipherSingleByteXORFromFile(file *os.File) (guess, error) {
+	scanner := bufio.NewScanner(file)
+
+	msgGuess := guess{score: math.Inf(1)}
+	for scanner.Scan() {
+		bestGuess, err := decipherSingleByteXOR(scanner.Text())
+		if err != nil {
+			return guess{}, err
+		}
+
+		if bestGuess.score < msgGuess.score {
+			msgGuess.score = bestGuess.score
+			msgGuess.plainText = strings.TrimSpace(bestGuess.plainText)
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		return guess{}, err
+	}
+
+	return msgGuess, nil
 }
