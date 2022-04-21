@@ -177,3 +177,23 @@ func decipherSingleByteXORFromFile(file *os.File) (guess, error) {
 
 	return msgGuess, nil
 }
+
+// encryptWithRepeatingXOR Encrypts msg under the given key and returns the
+// hex representation.
+func encryptWithRepeatingXOR(msg, key string) string {
+	msgBytes := []byte(msg)
+	keyBytes := []byte(key)
+	encryptedMsg := make([]byte, len(msgBytes))
+
+	keyIndex := 0
+	for i, msgByte := range msgBytes {
+		if keyIndex >= len(keyBytes) {
+			keyIndex = 0
+		}
+		encryptedMsg[i] = msgByte ^ keyBytes[keyIndex]
+		keyIndex++
+	}
+
+	hexMsg := encodeToHex(encryptedMsg)
+	return string(hexMsg)
+}
