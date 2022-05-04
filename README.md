@@ -5,4 +5,4 @@
 Solutions written in Go for https://cryptopals.com challenges.
 
 ## Run and validate challenges
-`go test ./...`
+`go generate ./... && go test ./...`
