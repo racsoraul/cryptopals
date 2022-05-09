@@ -151,9 +151,9 @@ func decipherSingleByteXORFromFile(file *os.File) (guess, error) {
 	return msgGuess, nil
 }
 
-// encryptWithRepeatingXOR Encrypts msg under the given key and returns the
+// EncryptWithRepeatingXOR Encrypts msg under the given key and returns the
 // hex representation.
-func encryptWithRepeatingXOR(msg, key string) string {
+func EncryptWithRepeatingXOR(msg, key string) string {
 	msgBytes := []byte(msg)
 	keyBytes := []byte(key)
 	encryptedMsg := make([]byte, len(msgBytes))
