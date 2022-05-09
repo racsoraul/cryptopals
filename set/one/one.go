@@ -13,8 +13,8 @@ import (
 
 //go:generate go run gen.go -file=frankenstein.txt
 
-// decodeHex Decodes Hex string.
-func decodeHex(src string) ([]byte, error) {
+// DecodeHex Decodes Hex string.
+func DecodeHex(src string) ([]byte, error) {
 	dst := make([]byte, hex.DecodedLen(len(src)))
 	_, err := hex.Decode(dst, []byte(src))
 	if err != nil {
@@ -23,8 +23,8 @@ func decodeHex(src string) ([]byte, error) {
 	return dst, nil
 }
 
-// encodeToHex Encodes string to Hex.
-func encodeToHex(src []byte) []byte {
+// EncodeToHex Encodes string to Hex.
+func EncodeToHex(src []byte) []byte {
 	dst := make([]byte, hex.EncodedLen(len(src)))
 	hex.Encode(dst, src)
 	return dst
@@ -32,7 +32,7 @@ func encodeToHex(src []byte) []byte {
 
 // hexToBase64 Convert hex to base64
 func hexToBase64(src string) (string, error) {
-	dst, err := decodeHex(src)
+	dst, err := DecodeHex(src)
 	if err != nil {
 		return "", err
 	}
@@ -42,24 +42,24 @@ func hexToBase64(src string) (string, error) {
 }
 
 // fixedXOR takes two equal-length hex values and produces their XOR combination.
-func fixedXOR(a, b string) (string, error) {
+func fixedXOR(a, b string) ([]byte, error) {
 	if len(a) != len(b) {
-		return "", fmt.Errorf("arguments must be of equal length")
+		return nil, fmt.Errorf("arguments must be of equal length")
 	}
-	decodedA, err := decodeHex(a)
+	decodedA, err := DecodeHex(a)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	decodedB, err := decodeHex(b)
+	decodedB, err := DecodeHex(b)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	result := make([]byte, len(decodedA))
 	for i := 0; i < len(result); i++ {
 		result[i] = decodedA[i] ^ decodedB[i]
 	}
-	return string(encodeToHex(result)), nil
+	return result, nil
 }
 
 // scoreText Gives a score to text to help determine if it's English text.
@@ -101,7 +101,7 @@ type guess struct {
 
 // decipherSingleByteXOR Deciphers the message.
 func decipherSingleByteXOR(src string) (guess, error) {
-	cipherText, err := decodeHex(src)
+	cipherText, err := DecodeHex(src)
 	if err != nil {
 		return guess{}, err
 	}
@@ -153,7 +153,7 @@ func decipherSingleByteXORFromFile(file *os.File) (guess, error) {
 
 // EncryptWithRepeatingXOR Encrypts msg under the given key and returns the
 // hex representation.
-func EncryptWithRepeatingXOR(msg, key string) string {
+func EncryptWithRepeatingXOR(msg, key string) []byte {
 	msgBytes := []byte(msg)
 	keyBytes := []byte(key)
 	encryptedMsg := make([]byte, len(msgBytes))
@@ -167,6 +167,5 @@ func EncryptWithRepeatingXOR(msg, key string) string {
 		keyIndex++
 	}
 
-	hexMsg := encodeToHex(encryptedMsg)
-	return string(hexMsg)
+	return encryptedMsg
 }

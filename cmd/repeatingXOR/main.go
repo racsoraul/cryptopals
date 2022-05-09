@@ -13,7 +13,9 @@ import (
 
 func main() {
 	var filePath string
-	flag.StringVar(&filePath, "f", "", "Path to file to encrypt.")
+	var decryptMode bool
+	flag.StringVar(&filePath, "f", "", "Path to file to encrypt/decrypt.")
+	flag.BoolVar(&decryptMode, "d", false, "Indicates if it should encrypt or decrypt the file.")
 	flag.Parse()
 	if len(filePath) == 0 {
 		log.Fatalln("Path to file -f is required.")
@@ -45,15 +47,40 @@ func main() {
 
 	inputScanner := bufio.NewScanner(inputFile)
 
-	for inputScanner.Scan() {
-		text := inputScanner.Text()
-		_, err := tmpFile.WriteString(one.EncryptWithRepeatingXOR(text, key) + "\n")
-		if err != nil {
-			fmt.Println(err)
+	if decryptMode {
+		for inputScanner.Scan() {
+			text, err := one.DecodeHex(inputScanner.Text())
+			if err != nil {
+				log.Fatalln(err)
+			}
+			_, err = tmpFile.WriteString(fmt.Sprintf("%s\n", one.EncryptWithRepeatingXOR(string(text), key)))
+			if err != nil {
+				log.Fatalln(err)
+			}
+		}
+	} else {
+		for inputScanner.Scan() {
+			text := inputScanner.Text()
+			_, err := tmpFile.WriteString(fmt.Sprintf("%s\n", one.EncodeToHex(one.EncryptWithRepeatingXOR(text, key))))
+			if err != nil {
+				log.Fatalln(err)
+			}
 		}
 	}
 
 	err = inputScanner.Err()
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	// Remove original file.
+	err = os.Remove(inputFile.Name())
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	// Replace by encrypted/decrypted version.
+	err = os.Rename(tmpFile.Name(), inputFile.Name())
 	if err != nil {
 		log.Fatalln(err)
 	}
