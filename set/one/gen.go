@@ -77,7 +77,7 @@ func main() {
 			break
 		}
 		if errReader != nil {
-			log.Println(errReader)
+			log.Fatalln(errReader)
 		}
 
 		for _, letter := range letterSet {
