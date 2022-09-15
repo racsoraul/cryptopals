@@ -158,13 +158,9 @@ func EncryptWithRepeatingXOR(msg, key string) []byte {
 	keyBytes := []byte(key)
 	encryptedMsg := make([]byte, len(msgBytes))
 
-	keyIndex := 0
+	keyLength := len(keyBytes)
 	for i, msgByte := range msgBytes {
-		if keyIndex >= len(keyBytes) {
-			keyIndex = 0
-		}
-		encryptedMsg[i] = msgByte ^ keyBytes[keyIndex]
-		keyIndex++
+		encryptedMsg[i] = keyBytes[i%keyLength] ^ msgByte
 	}
 
 	return encryptedMsg
