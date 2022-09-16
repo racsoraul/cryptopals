@@ -68,3 +68,15 @@ func TestEncryptWithRepeatingXOR(t *testing.T) {
 		t.Fatalf("\nWants:\n%s\nActual:\n%s\n", wants, actual)
 	}
 }
+
+// Challenge 6
+func TestHammingDistance(t *testing.T) {
+	distance, err := HammingDistance([]byte("this is a test"), []byte("wokka wokka!!!"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	wants := 37
+	if distance != wants {
+		t.Fatalf("wants: %d; got: %d", wants, distance)
+	}
+}

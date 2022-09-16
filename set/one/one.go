@@ -165,3 +165,20 @@ func EncryptWithRepeatingXOR(msg, key string) []byte {
 
 	return encryptedMsg
 }
+
+// HammingDistance Computes the edit distance between two strings.
+func HammingDistance(a, b []byte) (int, error) {
+	if len(a) != len(b) {
+		return 0, fmt.Errorf("arguments must be of equal length")
+	}
+
+	var editDistance int
+	for i := 0; i < len(a); i++ {
+		distance := a[i] ^ b[i]
+		for j := 0; j < 8; j++ {
+			editDistance += int(distance & 1)
+			distance = distance >> 1
+		}
+	}
+	return editDistance, nil
+}
